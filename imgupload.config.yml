@@ -1,0 +1,4 @@
+port: 1234
+addr: '0.0.0.0'
+upload: 'upload'
+resize: 'resize'
