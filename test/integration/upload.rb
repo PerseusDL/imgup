@@ -11,6 +11,7 @@ class Upload < ServerTest
       url,
       :file => file
     )
+    puts res.inspect
     assert( false )
   end
   
