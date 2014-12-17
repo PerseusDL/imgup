@@ -9,7 +9,7 @@ class ServerTest < Minitest::Test
   
   # Config will be handy for testing
   
-  @@settings = YAML.load( File.read("#{File.dirname(__FILE__)}/../imgupload.config.yml") )
+  @@settings = YAML.load( File.read("#{File.dirname(__FILE__)}/../imgup.config.yml") )
   def self.settings
     @@settings
   end
@@ -28,4 +28,7 @@ class ServerTest < Minitest::Test
     "#{dir()}/data/#{file}"
   end
   
+  def serv_path( pth )
+    "http://localhost:#{ @@settings['port'] }/#{ pth }"
+  end
 end

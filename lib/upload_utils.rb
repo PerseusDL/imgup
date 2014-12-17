@@ -43,4 +43,16 @@ class UploadUtils
     return path
   end
   
+  
+  # Is the string a URI
+  
+  def self.uri?( str )
+    uri = URI.parse( str )
+    %w( http https ).include?( uri.scheme )
+    rescue URI::BadURIError
+      false
+    rescue URI::InvalidURIError
+      false
+  end
+  
 end
