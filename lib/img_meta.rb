@@ -3,6 +3,12 @@ require 'mimemagic'
 
 class ImgMeta
   
+  # Get the type
+  
+  def self.type( file )
+    ::MimeMagic.by_path( file )
+  end
+  
   
   # Retrieve EXIF data
   
@@ -11,7 +17,7 @@ class ImgMeta
     
     #  Is the file a JPEG?
     
-    type = ::MimeMagic.by_path( file ).to_s.upcase
+    type = self.type( file ).to_s.upcase
     if type != 'IMAGE/JPEG'
       raise "File format ( #{ type } ) is not supported"
     end

@@ -4,6 +4,7 @@ require 'sinatra/config_file'
 require 'sinatra/cross_origin'
 require 'json'
 require 'net/http'
+require 'open-uri'
 require_relative 'lib/upload_utils'
 require_relative 'lib/img_meta'
 
@@ -44,10 +45,10 @@ helpers do
   end
   
   
-  # Return an error
+  # Return a 404 error
   
-  def error( err )
-    status 404
+  def fatal_error( err, code=500 )
+    status code
     { :error => err }.to_json
   end
   
@@ -55,7 +56,7 @@ helpers do
   # Spit out a file
   
   def spit_file( file )
-    send_file file
+    send_file open( file ), type: ImgMeta.type( file ), disposition: 'inline'
   end
   
   # Run a command on a path
@@ -65,7 +66,7 @@ helpers do
     # No command no action
     
     if cmd == nil
-      return error( "No command was passed to ?cmd=" )
+      return fatal_error( "No command was passed to ?cmd=" )
     end
     
     
@@ -75,14 +76,14 @@ helpers do
     
     when 'exif'
       if File.file?( pth ) == false
-        return error( "#{pth} could not be found" )
+        return fatal_error( "#{pth} could not be found", 404 )
       end
       return exif( pth )
     
     # Invalid command
     
     else
-      return error( "#{cmd} is not a valid command" )
+      return fatal_error( "#{cmd} is not a valid command" )
     end
   end
   
@@ -111,15 +112,13 @@ helpers do
     
     # Save new path
     
-    out[:path] = path
+    out[:src] = "http://#{request.host_with_port}/#{path}"
   
     # Extract additional metadata
   
     out[:exif] = exif( path )
   
     # Return metadata JSON
-    
-    logger.info out.inspect
   
     return out.to_json
   end
@@ -167,7 +166,7 @@ end
 
 post '/zip' do
   cross_origin :allow_origin => settings.allow_origin
-  error( "feature not complete" )
+  fatal_error( "feature not complete" )
 end
 
 
@@ -192,7 +191,7 @@ get '/*' do
   begin
     spit_file( pth )
   rescue
-    error( "file not found" )
+    fatal_error( "file not found", 404 )
   end
   
 end
