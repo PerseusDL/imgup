@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'sinatra/reloader'
 require 'sinatra/config_file'
+require 'sinatra/cross_origin'
 require 'json'
 require 'net/http'
 require_relative 'lib/upload_utils'
@@ -16,6 +17,9 @@ enable :logging
 config_file 'imgup.config.yml'
 set :port, settings.port
 set :bind, settings.addr
+
+enable :cross_origin
+set :allow_origin, :any
 
 
 #######################
