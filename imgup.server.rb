@@ -11,15 +11,13 @@ require_relative 'lib/img_meta'
 
 require 'logger'
 enable :logging
+enable :cross_origin
 
 # How is the server configured?
 
 config_file 'imgup.config.yml'
 set :port, settings.port
 set :bind, settings.addr
-
-enable :cross_origin
-set :allow_origin, :any
 
 
 #######################
@@ -150,13 +148,19 @@ end
 # Upload a new file
 
 post '/upload' do
+  cross_origin :allow_origin => settings.allow_origin
   out = { :orig => params['file'][:filename] }
   upload( out, params['file'][:tempfile] )
+end
+
+options '/upload' do
+  cross_origin :allow_origin => settings.allow_origin
 end
 
 # Upload a zip containing many files
 
 post '/zip' do
+  cross_origin :allow_origin => settings.allow_origin
   error( "feature not complete" )
 end
 
@@ -164,6 +168,7 @@ end
 # Retrieve a new file from the web
 
 post '/src' do
+  cross_origin :allow_origin => settings.allow_origin
   out = { :orig => params['src'] }
   upload( out, params['src'] )
 end
