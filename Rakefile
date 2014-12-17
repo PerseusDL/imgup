@@ -29,6 +29,5 @@ namespace :data do
     else
       STDOUT.puts "No data was destroyed.  It's still all there :)"
     end
-    
   end
 end
