@@ -29,7 +29,11 @@ helpers do
   # Return exif metadata about an image
   
   def exif( file )
-    ImgMeta.exif( file )
+    begin
+      ImgMeta.exif( file )
+    rescue Exception => e
+      { :error => e.message }
+    end
   end
   
   
@@ -73,7 +77,7 @@ helpers do
       if File.file?( pth ) == false
         return error( "#{pth} could not be found" )
       end
-      return exif( pth ).to_json
+      return exif( pth )
     
     # Invalid command
     
@@ -111,9 +115,11 @@ helpers do
   
     # Extract additional metadata
   
-    out[:exif] = exif( out[:path] )
+    out[:exif] = exif( path )
   
     # Return metadata JSON
+    
+    logger.info out.inspect
   
     return out.to_json
   end
@@ -180,7 +186,7 @@ get '/*' do
   
   pth = path( params )
   if params.has_key?('cmd')
-    return run( params['cmd'], pth )
+    return run( params['cmd'], pth ).to_json
   end
   
   begin
