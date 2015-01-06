@@ -1,5 +1,13 @@
-port: 1234
 addr: '0.0.0.0'
+
+# run on port
+port: 1234
+
+# directory to store uploads
 upload: 'upload'
+
+# directory to store resized images
 resize: 'resize'
-allow_origin: 'http://localhost:4567'
+
+# accept requests from
+allow_origin: 'http://localhost:4567' 
