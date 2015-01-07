@@ -2,6 +2,15 @@
 
 Server for storing images copied from your filesystem or over HTTP.
 
+## Install
+
+	git clone https://github.com/caesarfeta/imgup /var/www/imgup
+	bundle install
+
+## Start
+
+	rake start
+
 ## RestClient examples
 
 Copy from filesystem

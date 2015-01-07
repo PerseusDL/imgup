@@ -59,6 +59,7 @@ helpers do
     send_file open( file ), type: ImgMeta.type( file ), disposition: 'inline'
   end
   
+  
   # Run a command on a path
   
   def run( cmd, pth )
@@ -150,6 +151,7 @@ end
 #######################
 # CONTROLLER METHODS
 
+
 # Upload a new file
 
 post '/upload' do
@@ -161,6 +163,7 @@ end
 options '/upload' do
   cross_origin :allow_origin => settings.allow_origin
 end
+
 
 # Upload a zip containing many files
 
