@@ -1,0 +1,1 @@
+This "public" directory is needed for rackup config for running Sinatra in Apache
