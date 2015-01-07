@@ -144,6 +144,15 @@ helpers do
     end
   end
   
+  
+  # Allow requests from origin
+  
+  def allow_origin
+    settings.allow_origin.each do | host |
+      cross_origin :allow_origin => host
+    end
+  end
+  
 end
 
 
@@ -155,20 +164,20 @@ end
 # Upload a new file
 
 post '/upload' do
-  cross_origin :allow_origin => settings.allow_origin
+  allow_origin
   out = { :orig => params['file'][:filename] }
   upload( out, params['file'][:tempfile] )
 end
 
 options '/upload' do
-  cross_origin :allow_origin => settings.allow_origin
+  allow_origin
 end
 
 
 # Upload a zip containing many files
 
 post '/zip' do
-  cross_origin :allow_origin => settings.allow_origin
+  allow_origin
   fatal_error( "feature not complete" )
 end
 
@@ -176,7 +185,7 @@ end
 # Retrieve a new file from the web
 
 post '/src' do
-  cross_origin :allow_origin => settings.allow_origin
+  allow_origin
   out = { :orig => params['src'] }
   upload( out, params['src'] )
 end
