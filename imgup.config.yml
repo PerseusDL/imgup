@@ -10,4 +10,4 @@ upload: 'upload'
 resize: 'resize'
 
 # accept requests from
-allow_origin: ['http://localhost:4567','http://localhost:4321']
+allow_origin: 'http://localhost:4567'

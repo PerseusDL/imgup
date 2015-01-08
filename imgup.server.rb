@@ -145,12 +145,11 @@ helpers do
   end
   
   
-  # Allow requests from origin
+  # CORS Cross Origin Resource Sharing
+  # aka "allow requests from"
   
-  def allow_origin
-    settings.allow_origin.each do | host |
-      cross_origin :allow_origin => host
-    end
+  def cors
+    cross_origin :allow_origin => settings.allow_origin
   end
   
 end
@@ -164,20 +163,20 @@ end
 # Upload a new file
 
 post '/upload' do
-  allow_origin
+  cors
   out = { :orig => params['file'][:filename] }
   upload( out, params['file'][:tempfile] )
 end
 
 options '/upload' do
-  allow_origin
+  cors
 end
 
 
 # Upload a zip containing many files
 
 post '/zip' do
-  allow_origin
+  cors
   fatal_error( "feature not complete" )
 end
 
@@ -185,7 +184,7 @@ end
 # Retrieve a new file from the web
 
 post '/src' do
-  allow_origin
+  cors
   out = { :orig => params['src'] }
   upload( out, params['src'] )
 end
