@@ -174,13 +174,18 @@ end
 
 post '/upload' do
   cors
-  if params.has_key? 'file'
-    out = { :orig => params['file'][:filename] }
-    upload( out, params['file'][:tempfile] )
-  else
-    src = JSON.parse( request.body.read )["src"]
-    out = { :orig => src }
-    upload( out, src )
+  begin
+    if params.has_key? 'file'
+      out = { :orig => params['file'][:filename] }
+      upload( out, params['file'][:tempfile] )
+    else
+      src = JSON.parse( request.body.read )["src"]
+      out = { :orig => src }
+      upload( out, src )
+    end
+  rescue
+      status 500
+      { :error => "Error uploading..." }.to_json
   end
 end
 
