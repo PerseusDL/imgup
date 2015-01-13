@@ -20,6 +20,9 @@ config_file 'imgup.config.yml'
 set :port, settings.port
 set :bind, settings.addr
 
+before do
+    logger.level = Logger::DEBUG
+end
 
 #######################
 # SHARED HELPER METHODS
@@ -57,6 +60,13 @@ helpers do
   
   def spit_file( file )
     send_file open( file ), type: ImgMeta.type( file ), disposition: 'inline'
+  end
+  
+  
+  # Log output
+  
+  def logdump( obj )
+    logger.debug obj.inspect
   end
   
   
@@ -164,8 +174,14 @@ end
 
 post '/upload' do
   cors
-  out = { :orig => params['file'][:filename] }
-  upload( out, params['file'][:tempfile] )
+  if params.has_key? 'file'
+    out = { :orig => params['file'][:filename] }
+    upload( out, params['file'][:tempfile] )
+  else
+    src = JSON.parse( request.body.read )["src"]
+    out = { :orig => src }
+    upload( out, src )
+  end
 end
 
 options '/upload' do
