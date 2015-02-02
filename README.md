@@ -4,11 +4,15 @@ Server for storing images copied from your filesystem or over HTTP.
 
 ## Install
 
+Install ImageMagick
+
 	git clone https://github.com/caesarfeta/imgup /var/www/imgup
 	bundle install
 
 ## Start
 
+	rake redis
+	rake sidekiq
 	rake start
 
 ## RestClient examples

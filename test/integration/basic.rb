@@ -1,10 +1,13 @@
 require_relative '../server_test'
 
-# ruby upload.rb test_AAA_upload
+# ruby basic.rb test_upload
 
 class Upload < ServerTest
   
-  def test_AAA_upload
+  
+  # Upload image from filesystem
+  
+  def test_upload
     file = File.new( data('manuscript.jpg'), 'rb' )
     
     res = RestClient.post(
@@ -16,7 +19,10 @@ class Upload < ServerTest
     assert( false )
   end
   
-  def test_AAB_link
+  
+  # Upload image from webserver
+  
+  def test_src
     
     res = RestClient.post(
       serv_path( "src" ),
@@ -25,6 +31,22 @@ class Upload < ServerTest
     
     puts res.inspect
     assert( false )
+  end
+  
+  
+  # Resize an image
+  
+  def test_resize
+    
+    res = RestClient.post(
+      serv_path( "resize" ),
+      :path => "/2015/FEB/tumblr_nj48n61t881r2q2xko1_1280.jpg",
+      :max_width => 100,
+      :max_height => 50
+    )
+    
+    puts res.inspect
+    assert( true )
   end
   
 end

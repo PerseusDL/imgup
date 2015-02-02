@@ -16,7 +16,7 @@ enable :cross_origin
 
 # How is the server configured?
 
-config_file 'imgup.config.yml'
+config_file 'conf/imgup.conf.yml'
 set :port, settings.port
 set :bind, settings.addr
 
@@ -48,7 +48,7 @@ helpers do
   end
   
   
-  # Return a 404 error
+  # Return a 500 error
   
   def fatal_error( err, code=500 )
     status code
@@ -59,6 +59,7 @@ helpers do
   # Spit out a file
   
   def spit_file( file )
+    # make sure file is in an approved of directory
     send_file open( file ), type: ImgMeta.type( file ), disposition: 'inline'
   end
   
@@ -210,6 +211,13 @@ post '/src' do
   upload( out, params['src'] )
 end
 
+
+# Resize an existing image
+
+post '/resize' do
+  cors
+  return params.to_json
+end
 
 # Return an image or run a command
 
