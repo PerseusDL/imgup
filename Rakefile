@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'rake/testtask'
 require 'yaml'
+require 'sidekiq'
 
 @settings = YAML.load( File.read( "conf/imgup.conf.yml" ) )
 Rake::TestTask.new do |t|
@@ -35,6 +36,14 @@ task :sidekiq do
   puts 'starting sidekiq...'
   fork do 
     `bundle exec sidekiq -C conf/sidekiq.yml -d -L log/sidekiq.log -r #{File.dirname(__FILE__)}/imgup.server.rb` 
+  end
+end
+
+namespace :stats do
+  desc "Clear sidekiq monitor stats"
+  task :clear do
+    Sidekiq.redis {|c| c.del('stat:processed') }
+    Sidekiq.redis {|c| c.del('stat:failed') }
   end
 end
 
