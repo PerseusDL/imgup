@@ -38,3 +38,16 @@ Retrieve image
 Retrieve image exif data as JSON
 
 	RestClient.get( 'http://your.imgup.server/upload/2015/JAN/file.jpg?cmd=exif' )
+
+## Sidekiq monitor
+
+imgup uses Sidekiq to run background processes.
+Sidekiq has a monitoring web-application.
+Start it by running...
+
+	rake monitor
+
+Then in your browser go to...
+
+	localhost:9494
+
