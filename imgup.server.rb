@@ -7,6 +7,7 @@ require 'net/http'
 require 'open-uri'
 require_relative 'lib/upload_utils'
 require_relative 'lib/img_meta'
+require_relative 'lib/sidekiq/size_worker'
 
 # Yes I want logging!
 
@@ -104,6 +105,30 @@ helpers do
   
   def up_dir
     UploadUtils.cal_dir( settings.upload )
+  end
+  
+  
+  # Create current resize directory
+  
+  def resize_dir
+    UploadUtils.cal_dir( settings.resize )
+  end
+  
+  
+  # Get local directory from URL
+  
+  def local( src )
+    esc = URI.escape( src )  
+    begin
+      uri = URI( esc )
+      path = uri.path
+    rescue
+      path = uri
+    end
+    if path.chars.first == '/'
+      path = path[1..-1]
+    end
+    URI.unescape( path )
   end
   
   
@@ -216,7 +241,35 @@ end
 
 post '/resize' do
   cors
-  return params.to_json
+  
+  # Get the local path to source file
+  
+  src = local( params['src'] )
+  
+  # Make sure path is valid
+  
+  if File.exist?( src ) == false
+    fatal_error( "#{params['src']} not found" )
+  end
+  
+  # Claim resize home
+  
+  resize = UploadUtils.uniq_file( "#{resize_dir}/#{ File.basename( src )}" )
+  
+  # Copy placeholder
+  
+  FileUtils.cp( 'public/img/processing.jpg', resize )
+  
+  # Kick off resize process
+  max_width = params['max_width']
+  max_height = params['max_height']
+  
+  SizeWorker.perform_async( src, resize, "#{max_width}x#{max_height}" )
+  
+  # Return path of the resized file
+  
+  return { 'src' => resize }.to_json
+  
 end
 
 # Return an image or run a command

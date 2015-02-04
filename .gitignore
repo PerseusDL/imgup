@@ -50,4 +50,9 @@ Thumbs.db
 # Temp directory
 
 /tmp
+
+# Image directories
+
 /upload
+/resize
+/crop

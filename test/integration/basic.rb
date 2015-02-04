@@ -38,9 +38,18 @@ class Upload < ServerTest
   
   def test_resize
     
+    file = File.new( data('manuscript.jpg'), 'rb' )
+    
+    res = RestClient.post(
+      serv_path( "upload" ),
+      :file => file
+    )
+    
+    json = JSON.parse( res )
+    
     res = RestClient.post(
       serv_path( "resize" ),
-      :path => "/2015/FEB/tumblr_nj48n61t881r2q2xko1_1280.jpg",
+      :src => json['src'],
       :max_width => 100,
       :max_height => 50
     )
