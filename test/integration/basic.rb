@@ -34,7 +34,7 @@ class Upload < ServerTest
   end
   
   
-  # Resize an image
+  # Resize an image using full src URL
   
   def test_resize
     
@@ -50,11 +50,34 @@ class Upload < ServerTest
     res = RestClient.post(
       serv_path( "resize" ),
       :src => json['src'],
-      :max_width => 100,
-      :max_height => 50
+      :max_width => 300,
+      :max_height => 300
     )
     
-    puts res.inspect
+    assert( true )
+  end
+  
+  
+  # Resize an image using just a partial path
+  
+  def test_resize_path
+    
+    file = File.new( data('manuscript.jpg'), 'rb' )
+    
+    res = RestClient.post(
+      serv_path( "upload" ),
+      :file => file
+    )
+    
+    json = JSON.parse( res )
+    
+    res = RestClient.post(
+      serv_path( "resize" ),
+      :src => json['src'],
+      :max_width => 300,
+      :max_height => 300
+    )
+    
     assert( true )
   end
   

@@ -132,6 +132,15 @@ helpers do
   end
   
   
+  # Make sure image file exists
+  
+  def exists( src )
+    if File.exist?( src ) == false
+      fatal_error( "#{params['src']} not found" )
+    end
+  end
+  
+  
   # Handles uploads from file or URL
   
   def upload( out, src )
@@ -178,6 +187,22 @@ helpers do
         out.write( res.body )
       end
     end
+  end
+  
+  
+  # Different clients may use different Content-Type headers.
+  # Sinatra doesn't build params object for all Content-Type headers.
+  # Accomodate them.
+  
+  def params_fix( params )
+  
+    if params == nil
+      begin
+        params = JSON.parse( request.body.read )
+      rescue
+      end
+    end
+    params
   end
   
   
@@ -241,6 +266,7 @@ end
 
 post '/resize' do
   cors
+  params = params_fix( params )
   
   # Get the local path to source file
   
@@ -248,9 +274,7 @@ post '/resize' do
   
   # Make sure path is valid
   
-  if File.exist?( src ) == false
-    fatal_error( "#{params['src']} not found" )
-  end
+  exists( src )
   
   # Claim resize home
   
@@ -261,9 +285,9 @@ post '/resize' do
   FileUtils.cp( 'public/img/processing.jpg', resize )
   
   # Kick off resize process
+  
   max_width = params['max_width']
   max_height = params['max_height']
-  
   SizeWorker.perform_async( src, resize, "#{max_width}x#{max_height}" )
   
   # Return path of the resized file
@@ -271,6 +295,11 @@ post '/resize' do
   return { 'src' => resize }.to_json
   
 end
+
+options '/resize' do
+  cors
+end
+
 
 # Return an image or run a command
 

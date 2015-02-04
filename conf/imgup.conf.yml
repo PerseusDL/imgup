@@ -9,5 +9,11 @@ upload: 'upload'
 # directory to store resized images
 resize: 'resize'
 
+# directory to store cropped images
+crop: 'crop'
+
+# directory of converted images
+convert: 'convert'
+
 # accept requests from
 allow_origin: 'http://localhost:4567'
