@@ -2,13 +2,13 @@ require_relative '../server_test'
 
 # ruby basic.rb test_upload
 
-class Upload < ServerTest
+class Basic < ServerTest
   
   
   # Upload image from filesystem
   
   def test_upload
-    file = File.new( data('manuscript.jpg'), 'rb' )
+    file = File.new( data('img/manuscript.jpg'), 'rb' )
     
     res = RestClient.post(
       serv_path( "upload" ),
@@ -38,7 +38,7 @@ class Upload < ServerTest
   
   def test_resize
     
-    file = File.new( data('manuscript.jpg'), 'rb' )
+    file = File.new( data('img/manuscript.jpg'), 'rb' )
     
     res = RestClient.post(
       serv_path( "upload" ),
@@ -62,7 +62,7 @@ class Upload < ServerTest
   
   def test_resize_path
     
-    file = File.new( data('manuscript.jpg'), 'rb' )
+    file = File.new( data('img/manuscript.jpg'), 'rb' )
     
     res = RestClient.post(
       serv_path( "upload" ),

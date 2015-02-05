@@ -9,6 +9,8 @@ require_relative 'lib/upload_utils'
 require_relative 'lib/img_meta'
 require_relative 'lib/sidekiq/size_worker'
 
+require 'rest_client'
+
 # Yes I want logging!
 
 require 'logger'
@@ -141,6 +143,13 @@ helpers do
   end
   
   
+  # Return the url path from local directory
+  
+  def url_path( path )
+    "http://#{request.host_with_port}/#{path}"
+  end
+  
+  
   # Handles uploads from file or URL
   
   def upload( out, src )
@@ -158,7 +167,7 @@ helpers do
     
     # Save new path
     
-    out[:src] = "http://#{request.host_with_port}/#{path}"
+    out[:src] = url_path( path )
   
     # Extract additional metadata
   
@@ -170,7 +179,7 @@ helpers do
   end
   
   
-  # Copy a file from the filesystem or over HTTP
+  # Copy a file from the filesystem
   
   def cp_fs( src, dest )
     FileUtils.cp( src, dest )
@@ -195,14 +204,15 @@ helpers do
   # Accomodate them.
   
   def params_fix( params )
-  
+    logdump( params )
     if params == nil
       begin
         params = JSON.parse( request.body.read )
       rescue
       end
     end
-    params
+    logdump( params )
+    return params
   end
   
   
@@ -211,6 +221,49 @@ helpers do
   
   def cors
     cross_origin :allow_origin => settings.allow_origin
+  end
+  
+  
+  # This is just to test SizeWorker in realtime
+  # This shouldn't stick around...
+  
+  def perform( src, out, size, send_to, json )
+    ImgTweak.resize( src, out, size )
+    
+    if json != nil && send_to != nil
+      
+      # Update the JSON with data from newly resized image
+      
+      dim = ImgTweak.dim( out )
+      hash = JSON.parse( json )
+      change_hash( hash, { 
+        'src' => url_path( out ), 
+        'width' => dim[:width], 
+        'height' => dim[:height] 
+      })
+      
+      # Update the JackSON server with the JSON metadata
+            
+      RestClient.post( send_to, { :data => hash }.to_json )
+      
+    end
+  end
+  
+  def change_hash( hash, map )
+    hash.each do | key, val |
+      
+      if val.is_a?( Hash )
+        change_hash( val, map )
+      end
+      
+      if val.is_a?( String )
+        map.each do | mkey, mval |
+          val.sub!( "{{ #{mkey} }}", "#{mval}" )
+          # What to do about individual numbers
+        end
+      end
+      
+    end
   end
   
 end
@@ -266,33 +319,31 @@ end
 
 post '/resize' do
   cors
-  params = params_fix( params )
   
-  # Get the local path to source file
+  # Retrieve JSON no matter what client
   
-  src = local( params['src'] )
+  p = params_fix( params )
   
   # Make sure path is valid
   
+  src = local( p['src'] )
   exists( src )
   
-  # Claim resize home
+  # Claim resize path with image place holder
   
   resize = UploadUtils.uniq_file( "#{resize_dir}/#{ File.basename( src )}" )
-  
-  # Copy placeholder
-  
   FileUtils.cp( 'public/img/processing.jpg', resize )
   
   # Kick off resize process
   
-  max_width = params['max_width']
-  max_height = params['max_height']
-  SizeWorker.perform_async( src, resize, "#{max_width}x#{max_height}" )
+  max_width = p['max_width']
+  max_height = p['max_height']
+  #SizeWorker.perform_async( src, resize, "#{max_width}x#{max_height}", params['send_to'], params['json'] )
+  perform( src, resize, "#{max_width}x#{max_height}", p['send_to'], p['json'] )
   
   # Return path of the resized file
   
-  return { 'src' => resize }.to_json
+  return { 'src' => url_path( resize ) }.to_json
   
 end
 

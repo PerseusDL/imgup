@@ -61,11 +61,13 @@ end
 namespace :data do
   desc 'Destroy all image data'
   task :destroy do
-    STDOUT.puts "Sure you want to destroy all images in \"#{@settings["upload"]}/\"? (y/n)"
+    STDOUT.puts "Sure you want to destroy all images in #{@settings["upload"]}, #{@settings["resize"]}, and #{@settings["crop"]}? (y/n)"
     input = STDIN.gets.strip
     if input == 'y'
-      FileUtils.rm_rf( @settings["upload"] )
-      FileUtils.mkdir( @settings["upload"] )
+      ["upload","resize","crop"].each do |dir|
+        FileUtils.rm_rf( @settings[dir] )
+        FileUtils.mkdir( @settings[dir] )
+      end
     else
       STDOUT.puts "No data was destroyed.  It's still all there :)"
     end
