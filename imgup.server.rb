@@ -9,7 +9,12 @@ require_relative 'lib/upload_utils'
 require_relative 'lib/img_meta'
 require_relative 'lib/sidekiq/size_worker'
 
+# Used by sidekiq workers
+
+require 'sidekiq'
 require 'rest_client'
+require_relative 'lib/img_tweak'
+require_relative 'lib/hash_utils'
 
 # Yes I want logging!
 
@@ -27,7 +32,7 @@ before do
     logger.level = Logger::DEBUG
 end
 
-#######################
+
 # SHARED HELPER METHODS
 
 helpers do
@@ -146,7 +151,7 @@ helpers do
   # Return the url path from local directory
   
   def url_path( path )
-    "http://#{request.host_with_port}/#{path}"
+    "#{settings.url_prefix}/#{path}"
   end
   
   
@@ -223,56 +228,10 @@ helpers do
     cross_origin :allow_origin => settings.allow_origin
   end
   
-  
-  # This is just to test SizeWorker in realtime
-  # This shouldn't stick around...
-  
-  def perform( src, out, size, send_to, json )
-    ImgTweak.resize( src, out, size )
-    
-    if json != nil && send_to != nil
-      
-      # Update the JSON with data from newly resized image
-      
-      dim = ImgTweak.dim( out )
-      hash = JSON.parse( json )
-      change_hash( hash, { 
-        'src' => url_path( out ), 
-        'width' => dim[:width], 
-        'height' => dim[:height] 
-      })
-      
-      # Update the JackSON server with the JSON metadata
-            
-      RestClient.post( send_to, { :data => hash }.to_json )
-      
-    end
-  end
-  
-  def change_hash( hash, map )
-    hash.each do | key, val |
-      
-      if val.is_a?( Hash )
-        change_hash( val, map )
-      end
-      
-      if val.is_a?( String )
-        map.each do | mkey, mval |
-          val.sub!( "{{ #{mkey} }}", "#{mval}" )
-          # What to do about individual numbers
-        end
-      end
-      
-    end
-  end
-  
 end
 
 
-
-#######################
 # CONTROLLER METHODS
-
 
 # Upload a new file
 
@@ -338,12 +297,15 @@ post '/resize' do
   
   max_width = p['max_width']
   max_height = p['max_height']
-  #SizeWorker.perform_async( src, resize, "#{max_width}x#{max_height}", params['send_to'], params['json'] )
-  perform( src, resize, "#{max_width}x#{max_height}", p['send_to'], p['json'] )
+  SizeWorker.perform_async( src, resize, "#{max_width}x#{max_height}", p['send_to'], p['json'], settings.url_prefix )
+
   
   # Return path of the resized file
   
-  return { 'src' => url_path( resize ) }.to_json
+  return { 
+    'src' => url_path( resize ), 
+    'msg' => 'Image has been successfully added to the resize queue' 
+  }.to_json
   
 end
 

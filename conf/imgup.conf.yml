@@ -17,3 +17,8 @@ convert: 'convert'
 
 # accept requests from
 allow_origin: 'http://localhost:4567'
+
+# url prefix
+# could be host and port
+# could be something more exotic if running behind a proxy
+url_prefix: 'http://localhost:1234'

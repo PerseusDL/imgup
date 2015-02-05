@@ -2,7 +2,9 @@ require_relative '../server_test'
 
 # ruby send_to.rb test_resize
 
-# It is really hard to write tests for this.
+# It is really hard to write tests for this,
+# because it is asynchronous.
+
 # I'll have to manually run these until I figure out
 # a system for doing this.
 

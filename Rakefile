@@ -11,7 +11,7 @@ Rake::TestTask.new do |t|
   t.test_files = FileList[ 'test/unit/*rb', 'test/integration/*rb' ]
 end
 
-desc "Start imgup"
+desc "Start all imgup servers"
 task :start do
   Rake::Task[:redis].invoke
   Rake::Task[:sidekiq].invoke
@@ -36,6 +36,12 @@ task :sidekiq do
   puts 'starting sidekiq...'
   fork do 
     `bundle exec sidekiq -C conf/sidekiq.yml -d -L log/sidekiq.log -r #{File.dirname(__FILE__)}/imgup.server.rb` 
+  end
+end
+namespace :sidekiq do
+  desc "Stop sidekiq"
+  task :stop do
+    Process.kill( 15, File.read('pid/sidekiq.pid').to_i )
   end
 end
 
