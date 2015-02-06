@@ -5,7 +5,7 @@ class SizeWorker
   
   sidekiq_options queue: "resize"
   
-  def perform( src, out, size, send_to=nil, json=nil, url_prefix=nil )
+  def perform( src, out, size, send_to, json, url_prefix )
     ImgTweak.resize( src, out, size )
     
     if json != nil && send_to != nil
@@ -13,7 +13,10 @@ class SizeWorker
       # Update the JSON with data from newly resized image
       
       dim = ImgTweak.dim( out )
-      hash = JSON.parse( json )
+      hash = json
+      if json.is_a?( String )
+        hash = JSON.parse( json )
+      end
       HashUtils.change_hash( hash, { 
         'src' => "#{url_prefix}/#{out}", 
         'width' => dim[:width], 

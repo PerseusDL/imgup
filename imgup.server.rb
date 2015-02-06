@@ -209,14 +209,12 @@ helpers do
   # Accomodate them.
   
   def params_fix( params )
-    logdump( params )
-    if params == nil
+    if params.nil? || params.empty?
       begin
         params = JSON.parse( request.body.read )
       rescue
       end
     end
-    logdump( params )
     return params
   end
   
@@ -297,8 +295,10 @@ post '/resize' do
   
   max_width = p['max_width']
   max_height = p['max_height']
+  
+  # SizeWorker.new.perform( src, resize, "#{max_width}x#{max_height}", p['send_to'], p['json'], settings.url_prefix )
+  
   SizeWorker.perform_async( src, resize, "#{max_width}x#{max_height}", p['send_to'], p['json'], settings.url_prefix )
-
   
   # Return path of the resized file
   

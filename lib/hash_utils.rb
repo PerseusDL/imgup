@@ -17,6 +17,7 @@ class HashUtils
       end
       
     end
+    hash
   end
   
 end
