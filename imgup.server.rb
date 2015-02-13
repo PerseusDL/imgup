@@ -122,10 +122,21 @@ helpers do
   end
   
   
+  # Create current crop directory
+  
+  def crop_dir
+    UploadUtils.cal_dir( settings.crop )
+  end
+  
+  def tmp_img
+    settings.tmp_img
+  end
+  
+  
   # Get local directory from URL
   
   def local( src )
-    esc = URI.escape( src )  
+    esc = URI.escape( src.sub!( settings.url_prefix, '' ) )  
     begin
       uri = URI( esc )
       path = uri.path
@@ -272,6 +283,33 @@ post '/src' do
 end
 
 
+# Crop an existing image
+
+post '/crop' do
+  cors
+  
+  # Retrieve JSON no matter what client
+  
+  p = params_fix( params )
+  src = local( p['src'] )
+  exists( src )
+  
+  crop = UploadUtils.uniq_file( "#{crop_dir}/#{File.basename( src )}")
+  FileUtils.cp( tmp_img(), crop )
+  
+  # Return path of the resized file
+  
+  return { 
+    'src' => url_path( crop ), 
+    'msg' => 'Your job has been added to the crop queue' 
+  }.to_json
+  
+end
+
+options '/crop' do
+  cors
+end
+
 # Resize an existing image
 
 post '/resize' do
@@ -288,8 +326,8 @@ post '/resize' do
   
   # Claim resize path with image place holder
   
-  resize = UploadUtils.uniq_file( "#{resize_dir}/#{ File.basename( src )}" )
-  FileUtils.cp( 'public/img/processing.jpg', resize )
+  resize = UploadUtils.uniq_file( "#{resize_dir}/#{File.basename( src )}" )
+  FileUtils.cp( tmp_img(), resize )
   
   # Kick off resize process
   
@@ -304,7 +342,7 @@ post '/resize' do
   
   return { 
     'src' => url_path( resize ), 
-    'msg' => 'Image has been successfully added to the resize queue' 
+    'msg' => 'Your job has been added to the resize queue' 
   }.to_json
   
 end
