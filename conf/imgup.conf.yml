@@ -1,0 +1,27 @@
+addr: '0.0.0.0'
+
+# run on port
+port: 1234
+
+# directory to store uploads
+upload: 'upload'
+
+# directory to store resized images
+resize: 'resize'
+
+# directory to store cropped images
+crop: 'crop'
+
+# directory of converted images
+convert: 'convert'
+
+# accept requests from
+allow_origin: 'http://localhost:4567'
+
+# url prefix
+# could be host and port
+# could be something more exotic if running behind a proxy
+url_prefix: 'http://localhost:1234'
+
+# temp image
+tmp_img: 'public/img/processing.jpg'

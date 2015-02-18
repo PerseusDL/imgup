@@ -1,0 +1,1 @@
+pid directory exists to store sidekiq.pid

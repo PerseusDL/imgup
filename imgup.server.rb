@@ -5,8 +5,17 @@ require 'sinatra/cross_origin'
 require 'json'
 require 'net/http'
 require 'open-uri'
+require 'addressable/uri'
 require_relative 'lib/upload_utils'
 require_relative 'lib/img_meta'
+require_relative 'lib/sidekiq/size_worker'
+
+# Used by sidekiq workers
+
+require 'sidekiq'
+require 'rest_client'
+require_relative 'lib/img_tweak'
+require_relative 'lib/hash_utils'
 
 # Yes I want logging!
 
@@ -16,12 +25,15 @@ enable :cross_origin
 
 # How is the server configured?
 
-config_file 'imgup.config.yml'
+config_file 'conf/imgup.conf.yml'
 set :port, settings.port
 set :bind, settings.addr
 
+before do
+    logger.level = Logger::DEBUG
+end
 
-#######################
+
 # SHARED HELPER METHODS
 
 helpers do
@@ -45,7 +57,7 @@ helpers do
   end
   
   
-  # Return a 404 error
+  # Return a 500 error
   
   def fatal_error( err, code=500 )
     status code
@@ -56,7 +68,15 @@ helpers do
   # Spit out a file
   
   def spit_file( file )
+    # make sure file is in an approved of directory
     send_file open( file ), type: ImgMeta.type( file ), disposition: 'inline'
+  end
+  
+  
+  # Log output
+  
+  def logdump( obj )
+    logger.debug obj.inspect
   end
   
   
@@ -96,6 +116,57 @@ helpers do
   end
   
   
+  # Create current resize directory
+  
+  def resize_dir
+    UploadUtils.cal_dir( settings.resize )
+  end
+  
+  
+  # Create current crop directory
+  
+  def crop_dir
+    UploadUtils.cal_dir( settings.crop )
+  end
+  
+  def tmp_img
+    settings.tmp_img
+  end
+  
+  
+  # Get local directory from URL
+  
+  def local( src )
+    esc = Addressable::URI.escape( src.sub!( settings.url_prefix, '' ) )  
+    begin
+      uri = URI( esc )
+      path = uri.path
+    rescue
+      path = uri
+    end
+    if path.chars.first == '/'
+      path = path[1..-1]
+    end
+    Addressable::URI.unescape( path ).gsub!('%20', ' ')
+  end
+  
+  
+  # Make sure image file exists
+  
+  def exists( src )
+    if File.exist?( src ) == false
+      fatal_error( "#{params['src']} not found" )
+    end
+  end
+  
+  
+  # Return the url path from local directory
+  
+  def url_path( path )
+    "#{settings.url_prefix}/#{path}"
+  end
+  
+  
   # Handles uploads from file or URL
   
   def upload( out, src )
@@ -113,7 +184,7 @@ helpers do
     
     # Save new path
     
-    out[:src] = "http://#{request.host_with_port}/#{path}"
+    out[:src] = url_path( path )
   
     # Extract additional metadata
   
@@ -125,7 +196,7 @@ helpers do
   end
   
   
-  # Copy a file from the filesystem or over HTTP
+  # Copy a file from the filesystem
   
   def cp_fs( src, dest )
     FileUtils.cp( src, dest )
@@ -145,6 +216,21 @@ helpers do
   end
   
   
+  # Different clients may use different Content-Type headers.
+  # Sinatra doesn't build params object for all Content-Type headers.
+  # Accomodate them.
+  
+  def params_fix( params )
+    if params.nil? || params.empty?
+      begin
+        params = JSON.parse( request.body.read )
+      rescue
+      end
+    end
+    return params
+  end
+  
+  
   # CORS Cross Origin Resource Sharing
   # aka "allow requests from"
   
@@ -155,17 +241,25 @@ helpers do
 end
 
 
-
-#######################
 # CONTROLLER METHODS
-
 
 # Upload a new file
 
 post '/upload' do
   cors
-  out = { :orig => params['file'][:filename] }
-  upload( out, params['file'][:tempfile] )
+  begin
+    if params.has_key? 'file'
+      out = { :orig => params['file'][:filename] }
+      upload( out, params['file'][:tempfile] )
+    else
+      src = JSON.parse( request.body.read )["src"]
+      out = { :orig => src }
+      upload( out, src )
+    end
+  rescue
+      status 500
+      { :error => "Error uploading..." }.to_json
+  end
 end
 
 options '/upload' do
@@ -187,6 +281,75 @@ post '/src' do
   cors
   out = { :orig => params['src'] }
   upload( out, params['src'] )
+end
+
+
+# Crop an existing image
+
+post '/crop' do
+  cors
+  
+  # Retrieve JSON no matter what client
+  
+  p = params_fix( params )
+  src = local( p['src'] )
+  exists( src )
+  
+  crop = UploadUtils.uniq_file( "#{crop_dir}/#{File.basename( src )}")
+  FileUtils.cp( tmp_img(), crop )
+  
+  # Return path of the resized file
+  
+  return { 
+    'src' => url_path( crop ), 
+    'msg' => 'Your job has been added to the crop queue' 
+  }.to_json
+  
+end
+
+options '/crop' do
+  cors
+end
+
+# Resize an existing image
+
+post '/resize' do
+  cors
+  
+  # Retrieve JSON no matter what client
+  
+  p = params_fix( params )
+  
+  # Make sure path is valid
+  
+  src = local( p['src'] )
+  exists( src )
+  
+  # Claim resize path with image place holder
+  
+  resize = UploadUtils.uniq_file( "#{resize_dir}/#{File.basename( src )}" )
+  FileUtils.cp( tmp_img(), resize )
+  
+  # Kick off resize process
+  
+  max_width = p['max_width']
+  max_height = p['max_height']
+  
+  # SizeWorker.new.perform( src, resize, "#{max_width}x#{max_height}", p['send_to'], p['json'], settings.url_prefix )
+  
+  SizeWorker.perform_async( src, resize, "#{max_width}x#{max_height}", p['send_to'], p['json'], settings.url_prefix )
+  
+  # Return path of the resized file
+  
+  return { 
+    'src' => url_path( resize ), 
+    'msg' => 'Your job has been added to the resize queue' 
+  }.to_json
+  
+end
+
+options '/resize' do
+  cors
 end
 
 
