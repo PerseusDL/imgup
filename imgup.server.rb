@@ -137,17 +137,11 @@ helpers do
   # Get local directory from URL
   
   def local( src )
-    esc = Addressable::URI.escape( src.sub!( settings.url_prefix, '' ) )  
-    begin
-      uri = URI( esc )
-      path = uri.path
-    rescue
-      path = uri
-    end
+    path = src.sub!( settings.url_prefix, '' )
     if path.chars.first == '/'
       path = path[1..-1]
     end
-    Addressable::URI.unescape( path ).gsub!('%20', ' ')
+    Addressable::URI.unescape( path )
   end
   
   
@@ -321,7 +315,6 @@ post '/resize' do
   p = params_fix( params )
   
   # Make sure path is valid
-  
   src = local( p['src'] )
   exists( src )
   
