@@ -5,6 +5,7 @@ require 'sinatra/cross_origin'
 require 'json'
 require 'net/http'
 require 'open-uri'
+require 'addressable/uri'
 require_relative 'lib/upload_utils'
 require_relative 'lib/img_meta'
 require_relative 'lib/sidekiq/size_worker'
@@ -136,7 +137,7 @@ helpers do
   # Get local directory from URL
   
   def local( src )
-    esc = URI.escape( src.sub!( settings.url_prefix, '' ) )  
+    esc = Addressable::URI.escape( src.sub!( settings.url_prefix, '' ) )  
     begin
       uri = URI( esc )
       path = uri.path
@@ -146,7 +147,7 @@ helpers do
     if path.chars.first == '/'
       path = path[1..-1]
     end
-    URI.unescape( path )
+    Addressable::URI.unescape( path ).gsub!('%20', ' ')
   end
   
   
