@@ -4,6 +4,26 @@ require_relative '../server_test'
 
 class Basic < ServerTest
   
+  def test_crop
+    file = File.new( data('img/manuscript.jpg'), 'rb' )
+    
+    res = RestClient.post(
+      serv_path( "upload" ),
+      :file => file
+    )
+    
+    json = JSON.parse( res )
+    
+    res = RestClient.post(
+      serv_path( "crop" ),
+      :src => json['src'],
+      :max_width => 300,
+      :max_height => 300
+    )
+    
+    assert( true )
+  end
+  
   
   # Upload image from filesystem
   

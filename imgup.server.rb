@@ -305,6 +305,7 @@ options '/crop' do
   cors
 end
 
+
 # Resize an existing image
 
 post '/resize' do
@@ -315,6 +316,7 @@ post '/resize' do
   p = params_fix( params )
   
   # Make sure path is valid
+  
   src = local( p['src'] )
   exists( src )
   

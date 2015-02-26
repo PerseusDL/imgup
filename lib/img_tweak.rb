@@ -2,6 +2,7 @@ require 'mini_magick'
 
 class ImgTweak
   
+  
   # Resize image
   # size @string "100x100"
   
@@ -36,9 +37,21 @@ class ImgTweak
   end
   
   
-  # TODO: Convert to image format
+  # Convert to image type
+  # type @string "jpg"
   
-  def self.convert( src, out, type )
+  def self.make( src, out, type )
+    img = MiniMagick::Image.open( src )
+    img.format( type )
+    img.write( out )
+  end
+  
+  
+  # Get image type
+  
+  def self.type( src )
+    img = MiniMagick::Image.open( src )
+    img.type
   end
   
 end
