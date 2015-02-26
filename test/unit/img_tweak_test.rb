@@ -1,7 +1,7 @@
 require_relative '../server_test'
 require_relative '../../lib/img_tweak'
 
-# ruby basic.rb test_resize
+# ruby basic.rb -- name test_resize
 
 class ImgTweakTest < ServerTest
   

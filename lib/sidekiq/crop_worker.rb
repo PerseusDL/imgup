@@ -1,10 +1,11 @@
-require_relative '../img_tweak'
 require 'sidekiq'
+
 class CropWorker
   include Sidekiq::Worker
+  
   sidekiq_options queue: "crop"
   
-  def perform( src, out, x, y, width, height )
+  def perform( src, out, x, y, width, height, send_to, json, url_prefix )
     ImgTweak.crop( src, out, x, y, width, height )
   end
 end

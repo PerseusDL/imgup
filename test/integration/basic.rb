@@ -1,6 +1,6 @@
 require_relative '../server_test'
 
-# ruby basic.rb test_upload
+# ruby basic.rb --name test_crop
 
 class Basic < ServerTest
   
@@ -17,9 +17,13 @@ class Basic < ServerTest
     res = RestClient.post(
       serv_path( "crop" ),
       :src => json['src'],
-      :max_width => 300,
-      :max_height => 300
+      :x => 0.2,
+      :y => 0.2,
+      :width => 0.5,
+      :height => 0.5
     )
+    
+    puts res.inspect 
     
     assert( true )
   end

@@ -9,3 +9,4 @@ production:
 :queues:
   - resize
   - crop
+  - type

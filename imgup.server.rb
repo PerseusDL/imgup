@@ -9,6 +9,7 @@ require 'addressable/uri'
 require_relative 'lib/upload_utils'
 require_relative 'lib/img_meta'
 require_relative 'lib/sidekiq/size_worker'
+require_relative 'lib/sidekiq/crop_worker'
 
 # Used by sidekiq workers
 
@@ -292,6 +293,15 @@ post '/crop' do
   crop = UploadUtils.uniq_file( "#{crop_dir}/#{File.basename( src )}")
   FileUtils.cp( tmp_img(), crop )
   
+  # Kick off crop process
+  
+  x = p['x']
+  y = p['y']
+  width = p['width']
+  height = p['height']
+  
+  CropWorker.perform_async( src, crop, x, y, width, height, p['send_to'], p['json'], settings.url_prefix )
+  
   # Return path of the resized file
   
   return { 
@@ -328,10 +338,7 @@ post '/resize' do
   # Kick off resize process
   
   max_width = p['max_width']
-  max_height = p['max_height']
-  
-  # SizeWorker.new.perform( src, resize, "#{max_width}x#{max_height}", p['send_to'], p['json'], settings.url_prefix )
-  
+  max_height = p['max_height']  
   SizeWorker.perform_async( src, resize, "#{max_width}x#{max_height}", p['send_to'], p['json'], settings.url_prefix )
   
   # Return path of the resized file
