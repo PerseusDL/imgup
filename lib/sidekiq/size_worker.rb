@@ -18,7 +18,7 @@ class SizeWorker
         hash = JSON.parse( json )
       end
       HashUtils.change_hash( hash, { 
-        'src' => "#{url_prefix}/#{out}", 
+        'src' => Addressable::URI.escape( "#{url_prefix}/#{out}" ),
         'width' => dim[:width], 
         'height' => dim[:height] 
       })
