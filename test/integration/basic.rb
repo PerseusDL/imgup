@@ -20,7 +20,7 @@ class Basic < ServerTest
       :x => 0.2,
       :y => 0.2,
       :width => 0.5,
-      :height => 0.5
+      :height => 0.5 
     )
     
     puts res.inspect 
