@@ -29,11 +29,13 @@ task :redis do
   end
 end
 
+SIDEKIQ_LOG = 'log/sidekiq.log'
 desc "Start sidekiq"
 task :sidekiq do
   puts 'starting sidekiq...'
   fork do 
-    `bundle exec sidekiq -C conf/sidekiq.yml -d -L log/sidekiq.log -r #{File.dirname(__FILE__)}/imgup.server.rb` 
+    `touch #{SIDEKIQ_LOG}`
+    `bundle exec sidekiq -C conf/sidekiq.yml -d -L  -r #{File.dirname(__FILE__)}/imgup.server.rb` 
   end
 end
 namespace :sidekiq do

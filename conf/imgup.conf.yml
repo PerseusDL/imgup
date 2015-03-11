@@ -25,3 +25,9 @@ url_prefix: 'http://localhost:1234'
 
 # temp image
 tmp_img: 'public/img/processing.jpg'
+
+# sidekiq log
+sidekiq_log: ''
+
+# redis log
+redis_log: ''
