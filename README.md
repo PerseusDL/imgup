@@ -169,7 +169,7 @@ and then save the JSON file to the path passed in `send_to`
 ## Sidekiq monitor
 
 imgup uses Sidekiq to run background processes.
-Sidekiq has a monitoring web-application.
+Sidekiq has a monitoring web-app.
 Start it by running...
 
 	rake monitor
@@ -178,5 +178,5 @@ Then in your browser go to...
 
 	localhost:9494
 
-The rake process must be running.
-Ending the rake process will kill the web-server.
+The `rake monitor` process must be running.
+Ending the rake process will kill the web-server hosting the monitoring web-app.

@@ -1,0 +1,1 @@
+redis server's working directory

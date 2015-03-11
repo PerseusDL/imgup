@@ -12,13 +12,23 @@ allow_origin: 'http://localhost:4567'
 # could be something more exotic if running behind a proxy
 url_prefix: 'http://localhost:1234'
 
+# application root directory
+app_dir: '/var/www/imgup'
+
+# rbenv user
+# needed by init.d
+rbenv_user: 'adam83'
+
 # sidekiq
 sidekiq_port: 9494
 sidekiq_log: '/var/www/imgup/log/sidekiq.log'
 sidekiq_pid: 'pid/sidekiq.pid'
 
 # redis
+redis_port: 6379
 redis_log: '/var/www/imgup/log/redis.log'
+redis_pid: '/var/www/imgup/pid/redis.pid'
+redis_dir: '/var/www/imgup/redis'
 
 # img storage dirs
 upload: 'upload'

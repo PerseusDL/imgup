@@ -56,3 +56,7 @@ Thumbs.db
 /upload
 /resize
 /crop
+
+# Redis rdb files
+
+*.rdb

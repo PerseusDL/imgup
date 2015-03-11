@@ -11,12 +11,17 @@ Rake::TestTask.new do |t|
 end
 
 def write_config( name )
-  path = "conf/tmpl/#{ name }.tmpl"
+  tmpl = "conf/tmpl/#{ name }.tmpl"
   config = path.gsub( 'tmpl/','' ).gsub( '.tmpl', '' )
-  puts "Writing config ( #{config} ) from template ( #{path} )"
-  tmpl = Erubis::Eruby.new( File.read( path ) )
-  out = File.open( config, "w" )
+  puts "Writing #{config} from template #{tmpl}"
+  write_out( tmpl, config )
+end
+
+def write_out( src, to )
+  tmpl = Erubis::Eruby.new( File.read( src ) )
+  out = File.open( to, "w" )
   out << tmpl.result( @settings )
+  out.close
 end
 
 desc "Start all imgup's servers"
@@ -30,6 +35,11 @@ desc "Build configuration"
 task :config do
   Rake::Task['redis:config'].invoke
   Rake::Task['sidekiq:config'].invoke
+end
+
+desc "Make Redis & Sidekiq start on system init"
+task :sysinit do
+  puts 'to do!!!'
 end
 
 desc "Start sinatra"
@@ -58,7 +68,7 @@ task :sidekiq do
   Rake::Task['sidekiq:config'].invoke
   fork do 
     `touch #{ @settings['sidekiq_log' ] }`
-    `bundle exec sidekiq -C conf/sidekiq.yml -d -L  -r #{File.dirname(__FILE__)}/imgup.server.rb` 
+    `bundle exec sidekiq -C conf/sidekiq.yml -d -L #{ @settings['sidekiq_log' ] } -r #{File.dirname(__FILE__)}/imgup.server.rb` 
   end
 end
 namespace :sidekiq do
