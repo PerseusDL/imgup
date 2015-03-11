@@ -166,7 +166,7 @@ Here's what my JSON file looks like.
 imgup will replace the tags `{{ src }}` `{{ height }}` and `{{ width }}`.
 and then save the JSON file to the path passed in `send_to`
 
-## Sidekiq monitor
+## sidekiq monitor
 
 imgup uses Sidekiq to run background processes.
 Sidekiq has a monitoring web-app.
@@ -180,3 +180,14 @@ Then in your browser go to...
 
 The `rake monitor` process must be running.
 Ending the rake process will kill the web-server hosting the monitoring web-app.
+
+## Run redis and sidekiq on system init
+
+Write startup scripts
+
+	rake sysinit
+
+Make sure redis is running before sidekiq
+
+	sudo update-rc.d redis defaults 98
+	sudo update-rc.d sidekiq defaults 99

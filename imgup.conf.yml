@@ -30,6 +30,8 @@ redis_port: 6379
 redis_log: '/var/www/imgup/log/redis.log'
 redis_pid: '/var/www/imgup/pid/redis.pid'
 redis_dir: '/var/www/imgup/redis'
+redis_server: '/usr/bin/redis-server'
+redis_cli: '/usr/bin/redis-cli'
 redis_initd: '/etc/init.d/redis'
 
 # img storage dirs

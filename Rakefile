@@ -13,16 +13,19 @@ end
 def write_config( name )
   tmpl = "conf/tmpl/#{ name }.tmpl"
   config = path.gsub( 'tmpl/','' ).gsub( '.tmpl', '' )
-  puts "Writing #{config} from template #{tmpl}"
   write_out( tmpl, config )
 end
 
 def write_out( src, to )
+  puts "Writing #{to} from template #{src}"
   tmpl = Erubis::Eruby.new( File.read( src ) )
   out = File.open( to, "w" )
   out << tmpl.result( @settings )
   out.close
 end
+
+
+# Meta
 
 desc "Start all imgup's servers"
 task :start do
@@ -37,15 +40,38 @@ task :config do
   Rake::Task['sidekiq:config'].invoke
 end
 
-desc "Make Redis & Sidekiq start on system init"
+desc "Run redis & sidekiq on system init"
 task :sysinit do
-  puts 'to do!!!'
+  Rake::Task['redis:sysinit'].invoke
+  Rake::Task['sidekiq:sysinit'].invoke
 end
+
+
+# Sinatra
 
 desc "Start sinatra"
 task :sinatra do
   `ruby imgup.server.rb`
 end
+
+namespace :data do
+  desc 'Destroy all image data'
+  task :destroy do
+    STDOUT.puts "Sure you want to destroy all images in #{ @settings["upload"] }, #{ @settings["resize"] }, and #{ @settings["crop"] }? (y/n)"
+    input = STDIN.gets.strip
+    if input == 'y'
+      ["upload","resize","crop"].each do |dir|
+        FileUtils.rm_rf( @settings[dir] )
+        FileUtils.mkdir( @settings[dir] )
+      end
+    else
+      STDOUT.puts "No data was destroyed.  It's still all there :)"
+    end
+  end
+end
+
+
+# Redis
 
 desc "Start redis"
 task :redis do
@@ -55,12 +81,23 @@ task :redis do
     `redis-server conf/redis.conf` 
   end
 end
+
 namespace :redis do
+  
   desc "Build redis config"
   task :config do
     write_config( 'redis.conf' );
   end
+  
+  desc "Run redis on system init"
+  task :sysinit do
+    write_out( 'conf/tmpl/redis.init.d.tmpl', @settings['redis_initd'] )
+  end
+  
 end
+
+
+# Sidekiq
 
 desc "Start sidekiq"
 task :sidekiq do
@@ -71,15 +108,24 @@ task :sidekiq do
     `bundle exec sidekiq -C conf/sidekiq.yml -d -L #{ @settings['sidekiq_log' ] } -r #{File.dirname(__FILE__)}/imgup.server.rb` 
   end
 end
+
 namespace :sidekiq do
+  
   desc "Stop sidekiq"
   task :stop do
     Process.kill( 15, File.read( @settings['sidekiq_pid'] ).to_i )
   end
+  
   desc "Build sidekiq config"
   task :config do
     write_config( 'sidekiq.yml' );
   end
+  
+  desc "Run sidekiq on system init"
+  task :sysinit do
+    write_out( 'conf/tmpl/sidekiq.init.d.tmpl', @settings['sidekiq_initd'] )
+  end
+  
 end
 
 namespace :stats do
@@ -100,18 +146,3 @@ task :monitor do
   app.run!
 end
 
-namespace :data do
-  desc 'Destroy all image data'
-  task :destroy do
-    STDOUT.puts "Sure you want to destroy all images in #{ @settings["upload"] }, #{ @settings["resize"] }, and #{ @settings["crop"] }? (y/n)"
-    input = STDIN.gets.strip
-    if input == 'y'
-      ["upload","resize","crop"].each do |dir|
-        FileUtils.rm_rf( @settings[dir] )
-        FileUtils.mkdir( @settings[dir] )
-      end
-    else
-      STDOUT.puts "No data was destroyed.  It's still all there :)"
-    end
-  end
-end
