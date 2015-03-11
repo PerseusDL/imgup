@@ -6,8 +6,6 @@ require 'sidekiq'
 @settings = YAML.load( File.read( "conf/imgup.conf.yml" ) )
 Rake::TestTask.new do |t|
   t.libs = ['test']
-  t.warning = true
-  t.verbose = true
   t.test_files = FileList[ 'test/unit/*rb', 'test/integration/*rb' ]
 end
 

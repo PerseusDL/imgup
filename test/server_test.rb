@@ -5,7 +5,7 @@ require 'rest_client'
 require 'json'
 require 'yaml'
 
-class ServerTest < Minitest::Test
+class ServerTest < MiniTest::Test
   
   # Config will be handy for testing
   

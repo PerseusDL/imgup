@@ -4,16 +4,69 @@ Server for storing images copied from your filesystem or over HTTP.
 
 ## Install
 
+Get basics
+
+	sudo apt-get update
+	sudo apt-get install build-essential zlib1g-dev libssl1.0.0 libssl-dev git 
+
+Install ruby environment
+rbenv
+
+	cd ~
+	git clone https://github.com/sstephenson/rbenv.git ~/.rbenv
+	echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bash_profile
+	echo 'eval "$(rbenv init -)"' >> ~/.bash_profile
+
+ruby-build
+
+	git clone https://github.com/sstephenson/ruby-build.git ~/ruby-build
+	cd ~/ruby-build
+	sudo ./install.sh
+
+ruby
+
+	source ~/.bash_profile
+	rbenv install 2.1.3
+	rbenv global 2.1.3
+	rbenv rehash
+
+ruby gems
+
+	sudo apt-get install rubygems
+
+bundler
+
+	rbenv shell 2.1.3
+	gem install bundler
+
+Install ImageMagick dependencies
+
+	sudo apt-get install checkinstall libx11-dev libxext-dev libpng12-dev libjpeg-dev libfreetype6-dev libxml2-dev
+	sudo apt-get build-dep imagemagick'
+
 Install ImageMagick
 
+	wget http://www.imagemagick.org/download/ImageMagick-6.9.0-10.tar.gz
+	tar -xzvf ImageMagick-6.9.0-10.tar.gz
+	cd ImageMagick-6.9.0-10
+	sudo ./configure
+	sudo checkinstall
+	sudo ldconfig /usr/local/lib
+
+Install imgup
+
+	mkdir -p /var/www/imgup
 	git clone https://github.com/caesarfeta/imgup /var/www/imgup
+	cd /var/www/imgup
 	bundle install
 
 ## Start
 
-	rake redis
-	rake sidekiq
 	rake start
+
+## Test
+
+	rake test
 
 ## RestClient examples
 
@@ -95,10 +148,6 @@ Here's what my JSON file looks like.
 
 imgup will replace the tags `{{ src }}` `{{ height }}` and `{{ width }}`.
 and then save the JSON file to the path passed in `send_to`
-
-### TODO Crop an image
-
-### TODO Crop an image, then save metadata to JackSON
 
 ## Sidekiq monitor
 
