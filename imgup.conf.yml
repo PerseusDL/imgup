@@ -23,12 +23,14 @@ rbenv_user: 'adam83'
 sidekiq_port: 9494
 sidekiq_log: '/var/www/imgup/log/sidekiq.log'
 sidekiq_pid: 'pid/sidekiq.pid'
+sidekiq_initd: '/etc/init.d/sidekiq'
 
 # redis
 redis_port: 6379
 redis_log: '/var/www/imgup/log/redis.log'
 redis_pid: '/var/www/imgup/pid/redis.pid'
 redis_dir: '/var/www/imgup/redis'
+redis_initd: '/etc/init.d/redis'
 
 # img storage dirs
 upload: 'upload'
