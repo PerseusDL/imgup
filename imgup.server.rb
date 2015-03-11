@@ -26,7 +26,7 @@ enable :cross_origin
 
 # How is the server configured?
 
-config_file 'conf/imgup.conf.yml'
+config_file 'imgup.conf.yml'
 set :port, settings.port
 set :bind, settings.addr
 

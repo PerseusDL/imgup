@@ -9,7 +9,7 @@ class ServerTest < MiniTest::Test
   
   # Config will be handy for testing
   
-  @@settings = YAML.load( File.read("#{File.dirname(__FILE__)}/../conf/imgup.conf.yml") )
+  @@settings = YAML.load( File.read("#{File.dirname(__FILE__)}/../imgup.conf.yml") )
   def self.settings
     @@settings
   end

@@ -1,6 +1,7 @@
 source "http://rubygems.org"
 
 gem "rack"
+gem "rake"
 gem "sinatra"
 gem "sinatra-reloader"
 gem "sinatra-cross_origin", "~> 0.3.1"
@@ -11,3 +12,4 @@ gem "sidekiq", "~> 3.2.5"
 gem "rest_client"
 gem "addressable"
 gem "minitest"
+gem "erubis"

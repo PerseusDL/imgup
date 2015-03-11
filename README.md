@@ -53,12 +53,20 @@ Install ImageMagick
 	sudo checkinstall
 	sudo ldconfig /usr/local/lib
 
+Install Redis 2.8
+
+	sudo apt-get install python-software-properties
+	sudo apt-add-repository ppa:chris-lea/redis-server
+	sudo apt-get update
+	sudo apt-get install redis-server
+
 Install imgup
 
 	mkdir -p /var/www/imgup
-	git clone https://github.com/caesarfeta/imgup /var/www/imgup
+	git clone https://github.com/PerseusDL/imgup /var/www/imgup
 	cd /var/www/imgup
 	bundle install
+	rake config
 
 ## Start
 
@@ -66,7 +74,7 @@ Install imgup
 
 ## Test
 
-	rake test
+	bundle exec rake test
 
 ## RestClient examples
 
