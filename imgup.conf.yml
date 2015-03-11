@@ -1,0 +1,30 @@
+# bind to address
+addr: '0.0.0.0'
+
+# run on port
+port: 1234
+
+# accept requests from
+allow_origin: 'http://localhost:4567'
+
+# url prefix
+# could be host and port
+# could be something more exotic if running behind a proxy
+url_prefix: 'http://localhost:1234'
+
+# sidekiq
+sidekiq_port: 9494
+sidekiq_log: '/var/www/imgup/log/sidekiq.log'
+sidekiq_pid: 'pid/sidekiq.pid'
+
+# redis
+redis_log: '/var/www/imgup/log/redis.log'
+
+# img storage dirs
+upload: 'upload'
+resize: 'resize'
+crop: 'crop'
+convert: 'convert'
+
+# temp image
+tmp_img: 'public/img/processing.jpg'

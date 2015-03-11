@@ -66,6 +66,7 @@ Install imgup
 	git clone https://github.com/PerseusDL/imgup /var/www/imgup
 	cd /var/www/imgup
 	bundle install
+	rake config
 
 ## Start
 

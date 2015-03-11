@@ -1,0 +1,1 @@
+log directory exists as default storage directory for sidekiq.log and redis.log
