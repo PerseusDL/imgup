@@ -66,6 +66,15 @@ Install imgup
 	git clone https://github.com/PerseusDL/imgup /var/www/imgup
 	cd /var/www/imgup
 	bundle install
+
+Modify...
+
+	imgup.conf.yml
+
+... with custom settings if needed.
+
+Build redis and sidekiq config files.
+
 	rake config
 
 ## Start
