@@ -91,7 +91,9 @@ namespace :redis do
   
   desc "Run redis on system init"
   task :sysinit do
-    write_out( 'conf/tmpl/redis.init.d.tmpl', @settings['redis_initd'] )
+    write_out( 'conf/tmpl/redis.init.d.tmpl', 'conf/redis' )
+    `sudo mv conf/redis #{@settings['redis_initd']}`
+    `sudo update-rc.d redis defaults 98`
   end
   
 end
@@ -123,7 +125,9 @@ namespace :sidekiq do
   
   desc "Run sidekiq on system init"
   task :sysinit do
-    write_out( 'conf/tmpl/sidekiq.init.d.tmpl', @settings['sidekiq_initd'] )
+    write_out( 'conf/tmpl/sidekiq.init.d.tmpl', 'conf/sidekiq' )
+    `sudo mv conf/sidekiq #{@settings['sidekiq_initd']}`
+    `sudo update-rc.d sidekiq defaults 99`
   end
   
 end
