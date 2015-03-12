@@ -9,4 +9,15 @@ production:
 :queues:
   - resize
   - crop
+  - type---
+:verbose: true
+:concurrency: 5
+:pidfile: pid/sidekiq.pid
+staging:
+  :concurrency: 10
+production:
+  :concurrency: 20
+:queues:
+  - resize
+  - crop
   - type

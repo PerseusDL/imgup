@@ -93,6 +93,8 @@ namespace :redis do
   task :sysinit do
     write_out( 'conf/tmpl/redis.init.d.tmpl', 'conf/redis' )
     `sudo mv conf/redis #{@settings['redis_initd']}`
+    `sudo chmod 755 #{@settings['redis_initd']}`
+    `sudo update-rc.d -f redis remove`
     `sudo update-rc.d redis defaults 98`
   end
   
@@ -127,6 +129,8 @@ namespace :sidekiq do
   task :sysinit do
     write_out( 'conf/tmpl/sidekiq.init.d.tmpl', 'conf/sidekiq' )
     `sudo mv conf/sidekiq #{@settings['sidekiq_initd']}`
+    `sudo chmod 755 #{@settings['sidekiq_initd']}`
+    `sudo update-rc.d -f sidekiq remove`
     `sudo update-rc.d sidekiq defaults 99`
   end
   
