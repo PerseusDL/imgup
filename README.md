@@ -187,7 +187,3 @@ Write startup scripts
 
 	rake sysinit
 
-Make sure redis is running before sidekiq
-
-	sudo update-rc.d redis defaults 98
-	sudo update-rc.d sidekiq defaults 99
