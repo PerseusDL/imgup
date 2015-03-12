@@ -13,12 +13,12 @@
 
 # You will need to modify these
 
-APP="imgup"
+APP="sidekiq"
 AS_USER="<%= rbenv_user %>"
 APP_DIR="<%= app_dir %>"
 
 LOG_FILE="<%= sidekiq_log %>"
-LOCK_FILE="$APP_DIR/${APP}-lock"
+LOCK_FILE="$APP_DIR/${APP}.lock"
 PID_FILE="$APP_DIR/<%= sidekiq_pid %>"
 GEMFILE="$APP_DIR/Gemfile"
 SIDEKIQ="sidekiq"
