@@ -1,7 +1,10 @@
 #!/bin/sh
-#
-# Simple Redis init.d script conceived to work on Linux systems
-# as it does use of the /proc filesystem.
+
+### BEGIN INIT INFO
+# Provides: Redis
+# Short-Description: Starts Redis.
+# Description: Starts Redis.
+### END INIT INFO
 
 REDISPORT=<%= redis_port %>
 EXEC=<%= redis_server %>
